@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Patients - NiriKshan{% endblock %}
+{% block content %}
+<h1 class="text-center mb-4"><i class="fas fa-users"></i> Patient Management</h1>
+<div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'add_patient' %}" class="btn btn-primary" data-bs-toggle="tooltip" title="Add a new patient"><i class="fas fa-user-plus"></i> Add Patient</a>
+</div>
+<div class="row">
+    {% for data in patient_data %}
+    {% with patient=data.patient %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ patient.name }}</h5>
+                <p class="card-text">
+                    <strong>ID:</strong> {{ patient.id }}<br>
+                    <strong>Phone:</strong> {{ patient.phone }}<br>
+                    <strong>Tests:</strong><br>
+                    {% for test_data in data.tests %}
+                    - {{ test_data.test.name }} (Rs. {{ test_data.test.price }})<br>
+                    {% endfor %}
+                    <strong>Total:</strong> Rs. {{ patient.total_price }}
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'edit_patient' patient.id %}" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit patient"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'delete_patient' patient.id %}" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete patient"><i class="fas fa-trash"></i></a>
+                    <a href="{% url 'download_receipt' patient.id %}" class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Download receipt"><i class="fas fa-download"></i></a>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#testValuesModal-{{ patient.id }}" data-bs-toggle="tooltip" title="Enter test values"><i class="fas fa-vial"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for Entering Test Values -->
+    <div class="modal fade" id="testValuesModal-{{ patient.id }}" tabindex="-1" aria-labelledby="testValuesLabel-{{ patient.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="testValuesLabel-{{ patient.id }}">Enter Test Values for {{ patient.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="{% url 'enter_test_values' patient.id %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {% if data.tests %}
+                        <h5>All Test Values</h5>
+                        {% for test_data in data.tests %}
+                        <div class="mb-4">
+                            <h6>{{ test_data.test.name }}</h6>
+                            {% if test_data.factors %}
+                            {% for factor in test_data.factors %}
+                            <div class="mb-2">
+                                <label for="factor_{{ factor.id }}_{{ patient.id }}" class="form-label">{{ factor.factors }}</label>
+                                <input type="number" name="factor_{{ factor.id }}" id="factor_{{ factor.id }}_{{ patient.id }}" class="form-control" step="0.01" placeholder="Enter value" data-bs-toggle="tooltip" title="Enter value for {{ factor.factors }}">
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <p>No factors defined for this test.</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p>No tests assigned to this patient.</p>
+                        {% endif %}
+                        <div class="form-check">
+                            <input type="checkbox" name="predefined_header" id="predefined_header_{{ patient.id }}" class="form-check-input">
+                            <label for="predefined_header_{{ patient.id }}" class="form-check-label">Use Predefined Header</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save & Generate Reports</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+</div>
+{% endblock %}

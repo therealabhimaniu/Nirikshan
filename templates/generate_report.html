@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Generate Blood Test Report - NiriKshan{% endblock %}
+{% block content %}
+<h1 class="text-center">Generate Blood Test Report for {{ patient.name }}</h1>
+<div class="container mt-4">
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="test_id" class="form-label">Select Blood Test</label>
+            <select name="test_id" id="test_id" class="form-select" onchange="showFactors(this)">
+                <option value="">-- Select a Test --</option>
+                {% for test in tests %}
+                <option value="{{ test.id }}">{{ test.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="factors-container" class="mb-3" style="display: none;">
+            <h5>Enter Test Values</h5>
+            {% for test in tests %}
+            <div class="factor-group" data-test-id="{{ test.id }}" style="display: none;">
+                {% for factor in test_factors|get_item:test.id %}
+                <div class="mb-2">
+                    <label for="factor_{{ factor.id }}" class="form-label">{{ factor.factors }}</label>
+                    <input type="number" name="factor_{{ factor.id }}" id="factor_{{ factor.id }}" class="form-control" step="0.01" placeholder="Enter value">
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" name="predefined_header" id="predefined_header" class="form-check-input">
+            <label for="predefined_header" class="form-check-label">Use Predefined Header</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Generate Report</button>
+    </form>
+</div>
+
+<script>
+function showFactors(select) {
+    const testId = select.value;
+    const factorGroups = document.querySelectorAll('.factor-group');
+    const factorsContainer = document.getElementById('factors-container');
+
+    factorGroups.forEach(group => group.style.display = 'none');
+    factorsContainer.style.display = testId ? 'block' : 'none';
+
+    if (testId) {
+        const selectedGroup = document.querySelector(`.factor-group[data-test-id="${testId}"]`);
+        if (selectedGroup) selectedGroup.style.display = 'block';
+    }
+}
+</script>
+{% endblock %}
+
+{% load dict_lookup %}

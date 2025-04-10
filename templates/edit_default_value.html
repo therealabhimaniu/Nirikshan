@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Edit Default Value - NiriKshan{% endblock %}
+{% block content %}
+<h1 class="text-center mb-4"><i class="fas fa-edit"></i> Edit Default Value</h1>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <form method="post" class="p-4">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="test_name" class="form-label"><i class="fas fa-vial"></i> Test Name</label>
+                    <select name="test_name" id="test_name" class="form-select" required>
+                        {% for test in tests %}
+                        <option value="{{ test.id }}" {% if test.id == default_value.test_name.id %}selected{% endif %}>{{ test.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="factor_name" class="form-label"><i class="fas fa-list"></i> Factor Name</label>
+                    <select name="factor_name" id="factor_name" class="form-select" required>
+                        {% for factor in factors %}
+                        <option value="{{ factor.id }}" {% if factor.id == default_value.factor_name.id %}selected{% endif %}>{{ factor.factors }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="min_age" class="form-label"><i class="fas fa-calendar-minus"></i> Min Age</label>
+                    <div class="input-group">
+                        <input type="number" name="min_age" id="min_age" class="form-control" value="{{ default_value.min_age }}" min="0" step="1" required>
+                        <select name="min_age_unit" class="form-select">
+                            <option value="years" {% if default_value.min_age_unit == "years" %}selected{% endif %}>Years</option>
+                            <option value="months" {% if default_value.min_age_unit == "months" %}selected{% endif %}>Months</option>
+                            <option value="days" {% if default_value.min_age_unit == "days" %}selected{% endif %}>Days</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="max_age" class="form-label"><i class="fas fa-calendar-plus"></i> Max Age</label>
+                    <div class="input-group">
+                        <input type="number" name="max_age" id="max_age" class="form-control" value="{{ default_value.max_age }}" min="0" step="1" required>
+                        <select name="max_age_unit" class="form-select">
+                            <option value="years" {% if default_value.max_age_unit == "years" %}selected{% endif %}>Years</option>
+                            <option value="months" {% if default_value.max_age_unit == "months" %}selected{% endif %}>Months</option>
+                            <option value="days" {% if default_value.max_age_unit == "days" %}selected{% endif %}>Days</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="min_value" class="form-label"><i class="fas fa-arrow-down"></i> Min Value</label>
+                    <input type="number" name="min_value" id="min_value" class="form-control" value="{{ default_value.min_value }}" step="0.01" min="0" placeholder="e.g., 12.5">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="max_value" class="form-label"><i class="fas fa-arrow-up"></i> Max Value</label>
+                    <input type="number" name="max_value" id="max_value" class="form-control" value="{{ default_value.max_value }}" step="0.01" min="0" placeholder="e.g., 15.75">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="unit" class="form-label"><i class="fas fa-ruler"></i> Unit</label>
+                    <input type="text" name="unit" id="unit" class="form-control" value="{{ default_value.unit }}" required placeholder="e.g., g/dL">
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                <a href="{% url 'factors' %}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

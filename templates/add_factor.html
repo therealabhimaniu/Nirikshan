@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Add Factor - NiriKshan{% endblock %}
+{% block content %}
+<h1 class="text-center mb-4"><i class="fas fa-list-alt"></i> Add New Factor</h1>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <form method="post" class="p-4">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="test_name" class="form-label"><i class="fas fa-vial"></i> Test Name</label>
+                <select name="test_name" id="test_name" class="form-select" required>
+                    {% for test in tests %}
+                    <option value="{{ test.id }}" {% if test.id == test_id %}selected{% endif %}>{{ test.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="factors" class="form-label"><i class="fas fa-list"></i> Factor Name</label>
+                <input type="text" name="factors" id="factors" class="form-control" required placeholder="Enter factor name (e.g., Hemoglobin)">
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add Factor</button>
+                <a href="{% url 'factors' %}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

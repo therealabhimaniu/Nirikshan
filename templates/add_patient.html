@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Add Patient - NiriKshan{% endblock %}
+{% block content %}
+<h1 class="text-center mb-4"><i class="fas fa-user-plus"></i> Add New Patient</h1>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <form method="post" class="p-4">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="name" class="form-label"><i class="fas fa-user"></i> Name</label>
+                <input type="text" name="name" id="name" class="form-control" required placeholder="Enter patient name">
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label"><i class="fas fa-phone"></i> Phone</label>
+                <input type="text" name="phone" id="phone" class="form-control" required placeholder="Enter phone number">
+            </div>
+            <div class="mb-3">
+                <label for="referred_doctor" class="form-label"><i class="fas fa-user-md"></i> Referred Doctor</label>
+                <input type="text" name="referred_doctor" id="referred_doctor" class="form-control" placeholder="Enter doctor's name">
+            </div>
+            <div class="mb-3">
+                <label for="age" class="form-label"><i class="fas fa-calendar"></i> Age</label>
+                <div class="input-group">
+                    <input type="number" name="age" id="age" class="form-control" min="0" step="1" required placeholder="Enter age">
+                    <select name="age_unit" class="form-select">
+                        <option value="years">Years</option>
+                        <option value="months">Months</option>
+                        <option value="days">Days</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="gender" class="form-label"><i class="fas fa-venus-mars"></i> Gender</label>
+                <select name="gender" id="gender" class="form-select" required>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Other</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="tests" class="form-label"><i class="fas fa-vial"></i> Tests</label>
+                <select name="tests" id="tests" class="form-select" multiple data-bs-toggle="tooltip" title="Hold Ctrl to select multiple tests">
+                    {% for test in tests %}
+                    <option value="{{ test.id }}">{{ test.name }} (Rs. {{ test.price }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add Patient</button>
+                <a href="{% url 'patients' %}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

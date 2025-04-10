@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Factors - NiriKshan{% endblock %}
+{% block content %}
+<h1 class="text-center">Factor Management</h1>
+<div class="mt-4">
+    <a href="{% url 'add_factor' %}" class="btn btn-success">+ Add Factor</a>
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Factor</th>
+                <th>Test Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for factor in factors %}
+            <tr>
+                <td>{{ factor.factors }}</td>
+                <td>{{ factor.test_name.name }}</td>
+                <td>
+                    <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#setDefaultsModal-{{ factor.id }}">
+                        Set Default Values
+                    </button>
+                </td>
+            </tr>
+            <!-- Modal for Setting Default Values -->
+            <div class="modal fade" id="setDefaultsModal-{{ factor.id }}" tabindex="-1" aria-labelledby="setDefaultsLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Set Default Values for {{ factor.factors }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="post" action="{% url 'set_default_values' factor.id %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="row mb-2">
+                                    <div class="col">
+                                        <label>Min Age</label>
+                                        <div class="input-group">
+                                            <input type="number" name="min_age[]" class="form-control" min="0" step="1" required>
+                                            <select name="min_age_unit[]" class="form-select">
+                                                <option value="years">Years</option>
+                                                <option value="months">Months</option>
+                                                <option value="days">Days</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <label>Max Age</label>
+                                        <div class="input-group">
+                                            <input type="number" name="max_age[]" class="form-control" min="0" step="1" required>
+                                            <select name="max_age_unit[]" class="form-select">
+                                                <option value="years">Years</option>
+                                                <option value="months">Months</option>
+                                                <option value="days">Days</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <label>Min Value</label>
+                                        <input type="number" name="min_value[]" class="form-control" step="0.01" min="0">
+                                    </div>
+                                    <div class="col">
+                                        <label>Max Value</label>
+                                        <input type="number" name="max_value[]" class="form-control" step="0.01" min="0">
+                                    </div>
+                                    <div class="col">
+                                        <label>Unit</label>
+                                        <input type="text" name="unit[]" class="form-control" required>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="button" class="btn btn-danger btn-sm remove-field">X</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Save</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

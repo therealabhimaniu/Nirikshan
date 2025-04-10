@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - NiriKshan Lab{% endblock %}
+{% block content %}
+<h1 class="text-center mb-4"><i class="fas fa-tachometer-alt"></i> NiriKshan Lab</h1>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-users"></i> Total Patients</h5>
+                <p class="card-text display-6">{{ total_patients }}</p>
+                <a href="{% url 'patients' %}" class="btn btn-light btn-sm">View Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-vial"></i> Total Tests</h5>
+                <p class="card-text display-6">{{ total_tests }}</p>
+                <a href="{% url 'tests' %}" class="btn btn-light btn-sm">View Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-rupee-sign"></i> Total Revenue</h5>
+                <p class="card-text display-6">Rs. {{ total_revenue }}</p>
+                <a href="{% url 'patients' %}" class="btn btn-light btn-sm">View Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-clock"></i> Pending Reports</h5>
+                <p class="card-text display-6">{{ pending_reports }}</p>
+                <a href="{% url 'patients' %}" class="btn btn-light btn-sm">View Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Trends Chart -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title"><i class="fas fa-chart-line"></i> Test Trends</h5>
+        <canvas id="testTrendsChart" height="150"></canvas>
+        <button id="resetZoom" class="btn btn-secondary btn-sm mt-2">Reset Zoom</button>
+    </div>
+</div>
+
+<!-- Quick Actions and Recent Activity -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'add_patient' %}" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add Patient</a>
+                    <a href="{% url 'add_test' %}" class="btn btn-success"><i class="fas fa-vial"></i> Add Test</a>
+                    <a href="{% url 'add_factor' %}" class="btn btn-info"><i class="fas fa-list-alt"></i> Add Factor</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-history"></i> Recent Activity</h5>
+                <ul class="list-group list-group-flush">
+                    {% for activity in recent_activities %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ activity.description }}
+                        <span class="badge bg-secondary rounded-pill">{{ activity.timestamp|date:"d M Y H:i" }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item">No recent activity.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js and Plugins -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('testTrendsChart').getContext('2d');
+        const chartData = {{ chart_data|safe }};
+        const chartLabels = {{ chart_labels|safe }};
+
+        if (!chartLabels.length) {
+            console.log("No data available for chart.");
+        }
+
+        const testTrendsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Tests Performed',
+                    data: chartData,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: 'MMM dd, yyyy',
+                            displayFormats: { day: 'MMM dd' }
+                        },
+                        title: { display: true, text: 'Date' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Number of Tests' }
+                    }
+                },
+                plugins: {
+                    legend: { display: true },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `Tests: ${context.parsed.y}`;
+                            }
+                        }
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: { enabled: true },
+                            pinch: { enabled: true },
+                            mode: 'x'
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'x'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Reset zoom button
+        document.getElementById('resetZoom').addEventListener('click', function() {
+            testTrendsChart.resetZoom();
+        });
+    });
+</script>
+{% endblock %}
